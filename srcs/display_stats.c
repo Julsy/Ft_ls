@@ -33,7 +33,7 @@ static void		print_filetype(mode_t mode)
 
 static void		print_name_or_link(char* file, mode_t mode)
 {
-	char		link_buf[512];
+	char		link_buf[1024];
 	ssize_t		count;
 
 	if ((mode & S_IFMT) == S_IFLNK)
@@ -42,7 +42,7 @@ static void		print_name_or_link(char* file, mode_t mode)
 		if (count >= 0)
 		{
 			link_buf[count] = '\0';
-			printf(" %s -> %s \n", file, link_buf);
+			ft_printf(" %s -> %s \n", file, link_buf);
 		}
 		else
 		{
@@ -51,7 +51,7 @@ static void		print_name_or_link(char* file, mode_t mode)
 		}
 	}
 	else
-		printf(" %s\n", file);
+		ft_printf(" %s\n", file);
 }
 
 static void		print_time(time_t mod_time, struct stat stats)
@@ -67,15 +67,15 @@ static void		print_time(time_t mod_time, struct stat stats)
 	{
 		temp = ft_strsub(time_str, 4, 6);
 		temp2 = ft_strsub(time_str, 20, 4);
-		printf(" %s  %s", temp, temp2);
-		free(temp2);
+		ft_printf(" %s  %s", temp, temp2);
+		//free(temp2);
 	}
 	else
 	{
 		temp = ft_strsub(time_str, 4, 12);
-		printf(" %s", temp);
+		ft_printf(" %s", temp);
 	}
-	free(temp);
+	//free(temp);
 }
 
 void			display_stats(char* file, t_opts *opts)
@@ -85,15 +85,15 @@ void			display_stats(char* file, t_opts *opts)
 	stat(file, &stats);
 	if (opts->l == 0)
 	{
-		printf("%s\n", file);
+		ft_printf("%s\n", file);
 		return ;
 	}
 	print_filetype(stats.st_mode);
 	print_permissions(stats.st_mode);
-	printf("  %jd ", (intmax_t)stats.st_nlink);
-	printf("%5s ", getpwuid(stats.st_uid)->pw_name);
-	printf("%5s", getgrgid(stats.st_gid)->gr_name);
-	printf("%5jd ", (intmax_t)stats.st_size);
+	ft_printf("  %jd ", (intmax_t)stats.st_nlink);
+	ft_printf("%5s ", getpwuid(stats.st_uid)->pw_name);
+	ft_printf("%5s", getgrgid(stats.st_gid)->gr_name);
+	ft_printf("%5jd ", (intmax_t)stats.st_size);
 	print_time(stats.st_mtime, stats);
 	print_name_or_link(file, stats.st_mode);
 }

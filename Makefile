@@ -4,6 +4,10 @@ CFLAGS = -Wall -Wextra -Werror
 
 FILES = ft_ls.c display_stats.c
 
+FT_PRINTF = ft_printf.c helper.c get_flags.c process_char.c process_ptr.c \
+process_digit_id.c process_digit_oux.c process_percent.c process_width.c process_precision.c \
+process_wide_char.c
+
 LIBFT = ft_memset.c ft_bzero.c ft_memcpy.c ft_memccpy.c ft_memmove.c \
 ft_memchr.c ft_memcmp.c ft_strlen.c ft_strdup.c ft_strcpy.c ft_strncpy.c \
 ft_strcat.c ft_strncat.c ft_strlcat.c ft_strchr.c ft_strrchr.c ft_strstr.c \
@@ -20,11 +24,13 @@ ft_itoa_base.c ft_strndup.c ft_itoa_unbase.c
 
 FILE_SRCS = $(addprefix srcs/,$(FILES))
 
+FT_PRINTF_SRCS = $(addprefix srcs/ft_printf/,$(FT_PRINTF))
+
 LIBFT_SRCS = $(addprefix srcs/libft/,$(LIBFT))
 
-SRCS = $(FILE_SRCS) $(LIBFT_SRCS)
+SRCS = $(FILE_SRCS) $(LIBFT_SRCS) $(FT_PRINTF_SRCS)
 
-OBJECTS = $(FILES:.c=.o) $(LIBFT:.c=.o)
+OBJECTS = $(FILES:.c=.o) $(LIBFT:.c=.o) $(FT_PRINTF:.c=.o)
 
 HDR = -I./includes
 
@@ -33,13 +39,18 @@ HDR = -I./includes
 all: $(NAME)
 
 $(NAME):
-	gcc $(CFlAGS) $(HDR) -c $(SRCS)
-	gcc $(CFlAGS) -o $(NAME) $(OBJECTS)
+	@echo "compiling executable..."
+	@gcc $(CFlAGS) $(HDR) -c $(SRCS)
+	@gcc $(CFlAGS) -o $(NAME) $(OBJECTS)
+	@echo "./ft_ls is ready to test"
+	@/bin/rm -f $(OBJECTS)
 
 clean:
-	/bin/rm -f $(OBJECTS)
+	@echo "deleting all objects..."
+	@/bin/rm -f $(OBJECTS)
 
 fclean: clean
-	/bin/rm -f $(NAME)
+	@echo "deleting executable..."
+	@/bin/rm -f $(NAME)
 
 re: fclean all

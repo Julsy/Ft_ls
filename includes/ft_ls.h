@@ -43,3 +43,9 @@ typedef struct		s_opts
 void				display_stats(char* file, t_opts *opts);
 
 #endif
+
+
+// fix time issues
+// fix number of links
+// rewrite qsort algo
+// -a opt: add 'total' # of files
