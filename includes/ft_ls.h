@@ -30,6 +30,7 @@
 # include <unistd.h>
 # include <errno.h>
 # include "libft.h"
+# include "ft_printf.h"
 
 typedef struct		s_opts
 {
@@ -41,6 +42,7 @@ typedef struct		s_opts
 }					t_opts;
 
 void				display_stats(char* file, t_opts *opts);
+void				print_total(int count);
 
 #endif
 

@@ -101,10 +101,19 @@ void		display_dir_entries(char *dir, t_opts *opts)
 	char			**entries;
 	size_t			count;
 	size_t			i;
+	int				a;
 	struct stat		stats;
 
 	i = -1;
+	a = 0;
 	count = 0;
+	// if (!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode)))
+	// 	ft_printf("%s\n", dir); // not a dir
+	// if (stat(argv[i], &stats) == 0 && S_ISDIR(stats.st_mode))
+	// {
+	// 	if (opts->l)
+	// 		ft_printf("%s:\n", argv[i]); // multiple dirs
+	// }
 	folder = opendir(dir);
 	entries = ft_memalloc(sizeof(char *));
 	file = readdir(folder);
@@ -120,6 +129,17 @@ void		display_dir_entries(char *dir, t_opts *opts)
 		}
 		file = readdir(folder);
 	}
+	// if (opts->l)
+	// 	print_total();
+	// 	while ((file = readdir(folder)) != NULL)
+	// 	{
+	// 		if ((stat(file->d_name, &stats) == 0 && S_ISDIR(stats.st_mode)
+	// 			&& (opts->a || file->d_name[0] != '.')))
+	// 				a++;
+	// 	}
+	// }
+	// printf("%i\n", a);
+	
 	if (opts->t)
 		qsort(entries, count, sizeof(char*), cmp_time);	
 	else
@@ -129,27 +149,39 @@ void		display_dir_entries(char *dir, t_opts *opts)
 	closedir(folder);
 }
 
+void	print_list(t_list *list)
+{
+	if (list)
+	{
+		printf("content: %s\n", (char *)list->content);
+		print_list(list->next);
+	}
+}
+
 void		scan_dirs(int argc, char **argv, t_opts *opts)
 {
 	int			i;
+	t_list		*files;
 	struct stat	stats;
 
 	i = 0;
 	//printf("l: %i, R: %i, a: %i, r: %i, t: %i\n", opts->l, opts->R, opts->a, opts->r, opts->t);
 	while (++i < argc)
 	{
-		if (ft_strchr(&argv[i][0], '-') == NULL)
+		if (argv[i][0] == 0)
 		{
-			if (!(stat(argv[i], &stats) == 0 && S_ISDIR(stats.st_mode)))
-				ft_printf("%s\n", argv[i]); // not a dir
-			if (stat(argv[i], &stats) == 0 && S_ISDIR(stats.st_mode))
-			{
-				if (opts->l)
-					ft_printf("%s:\n", argv[i]); // multiple dirs
-				display_dir_entries(argv[i], opts);
-			}
+			ft_putstr_fd("ls: ft_ls_open: No such file or directory\n", 2);
+			exit(1);
+		}
+		if (!(ft_strchr(&argv[i][0], '-') && ft_strequ(argv[i], "./ft_ls")))
+		{
+			printf("ARGV: %s\n", argv[i]);
+			ft_list_add_back(&files, ft_lstnew(argv[i], sizeof(char *)));
 		}
 	}
+	//ft_lstdelcont(&files, files->content);
+	print_list(files);
+	//display_dir_entries(argv[i], opts);
 }
 
 int			main(int argc, char **argv)

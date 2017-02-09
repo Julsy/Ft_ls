@@ -118,6 +118,7 @@ t_list				*ft_list_last(t_list *begin_list);
 t_list				*ft_list_push_params(int ac, char **av);
 t_list				*ft_list_nth(t_list *begin_list, unsigned int nbr);
 void				ft_list_reverse(t_list **begin_list);
+void				ft_lstdelcont(t_list **alst, void *cont);
 
 /*
 ** Conversions
