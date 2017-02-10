@@ -1,39 +1,87 @@
-static void	ft_strswap(char **str1, char **str2)
-{
-	char	*tmp;
+#include "libft.h"
 
-	tmp = *str1;
-	*str1 = *str2;
-	*str2 = tmp;
+static void swap(t_list *head, int i, int j)
+{
+    t_list *tmp = head;
+    int tmpicontent_size;
+    int tmpjcontent_size;
+    int ti = i;
+    while(tmp && i) {
+        i--;
+        tmp = tmp->next;
+    }
+    tmpicontent_size = tmp->content_size;
+    tmp = head;
+    while(tmp && j) {
+        j--;
+        tmp = tmp->next;
+    }
+    tmpjcontent_size = tmp->content_size;
+    tmp->content_size = tmpicontent_size;
+    tmp = head;
+    i = ti;
+    while(tmp && i) {
+        i--;
+        tmp = tmp->next;
+    }
+    tmp->content_size = tmpjcontent_size;
 }
 
-static void	rec_sort(char *strings[], int begin, int end)
+int get_lcontent_size(t_list *head, int l)
 {
-	register int	left;
-	register int	right;
-	char			*pivot;
-
-	if (begin >= end)
-		return ;
-	pivot = strings[begin];
-	left = begin + 1;
-	right = end;
-	while (left < right)
-	{
-		if (ft_strcmp(strings[left], pivot) <= 0)
-			left++;
-		else if (ft_strcmp(strings[right], pivot) > 0)
-			right--;
-		else if (left < right)
-			ft_strswap(&strings[left], &strings[right]);
-	}
-	left--;
-	ft_strswap(&strings[begin], &strings[left]);
-	rec_sort(strings, begin, left);
-	rec_sort(strings, right, end);
+    while(head && l) {
+        head = head->next;
+        l--;
+    }
+    if (head != NULL)
+        return head->content_size;
+    else
+        return -1;
 }
 
-void	ft_strqsort(char *strings[], int size)
+static t_list *Quick_Sort_List(t_list *head, int l, int r)
 {
-	rec_sort(strings, 0, size - 1);
+    int i, j;
+    int jcontent_size;
+    int pivot;
+    i = l + 1;
+    if (l + 1 < r) {
+        pivot = get_lcontent_size(head, l);
+        printf("Pivot = %d\n", pivot);
+        for (j = l + 1; j <= r; j++) {
+            jcontent_size = get_lcontent_size(head, j);
+            if (jcontent_size < pivot && jcontent_size != -1) {
+                swap(head, i, j);
+                i++;
+            }
+        }
+        swap(head, i - 1, l);
+        Quick_Sort_List(head, l, i);
+        Quick_Sort_List(head, i, r);
+    }
+    return head;
+}
+
+static void print_list(t_list *head)
+{
+    while(head) {
+        printf("%d->", head->content_size);
+        head = head->next;
+    }
+    printf("\n");
+}
+
+t_list *Sort_linkedlist(t_list *head)
+{
+    t_list *tmp = head;
+
+    int n = 0;
+
+    while (tmp) {
+        n++;
+        tmp = tmp->next;
+    }
+    printf("n = %d\n", n);
+    head = Quick_Sort_List(head, 0, n);
+    return head;
 }

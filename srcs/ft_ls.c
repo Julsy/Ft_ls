@@ -60,41 +60,7 @@ t_opts		*get_opts(int argc, char **argv)
 	return (opts);
 }
 
-// struct stat get_stats(const char* filename)
-// {
-//     char path[1024];
-//     sprintf(path, "%s/%s", ".", filename);
-//     struct stat sb;
-//     return sb;
-// }
-
-static int cmp_lex(const void* p1, const void* p2)
-{
-    const char* str1;
-    const char* str2;
-
-    str1 = *(const void**)p1;
-    str2 = *(const void**)p2;
-    return (ft_strcmp(str1, str2));
-}
-
-static int cmp_time(const void* p1, const void* p2)
-{
-	struct stat stats;
-
-    const char* str1;
-    const char* str2;
-
-    str1 = *(const char**)p1;
-    str2 = *(const char**)p2;
-    stat(str1, &stats);
-    time_t time1 = stats.st_mtime;
-    stat(str2, &stats);
-    time_t time2 = stats.st_mtime;
-    return (time1 < time2);
-}
-
-void		display_dir_entries(char *dir, t_opts *opts)
+void		display_dir_entries(t_list *files, t_opts *opts)
 {
 	DIR				*folder;
 	struct dirent	*file;
@@ -114,7 +80,7 @@ void		display_dir_entries(char *dir, t_opts *opts)
 	// 	if (opts->l)
 	// 		ft_printf("%s:\n", argv[i]); // multiple dirs
 	// }
-	folder = opendir(dir);
+	folder = opendir(files->content);
 	entries = ft_memalloc(sizeof(char *));
 	file = readdir(folder);
 	while (file)
@@ -140,10 +106,10 @@ void		display_dir_entries(char *dir, t_opts *opts)
 	// }
 	// printf("%i\n", a);
 	
-	if (opts->t)
-		qsort(entries, count, sizeof(char*), cmp_time);	
-	else
-		qsort(entries, count, sizeof(char*), cmp_lex);
+	// if (opts->t)
+	// 	qsort(entries, count, sizeof(char*), cmp_time);	
+	// else
+	// 	qsort(entries, count, sizeof(char*), cmp_lex);
 	while (++i < count)
 		display_stats(entries[i], opts);
 	closedir(folder);
@@ -158,6 +124,15 @@ void	print_list(t_list *list)
 	}
 }
 
+// static void print_list(t_list *head)
+// {
+//     while(head) {
+//         printf("%lu->", head->content_size);
+//         head = head->next;
+//     }
+//     printf("\n");
+// }
+
 void		scan_dirs(int argc, char **argv, t_opts *opts)
 {
 	int			i;
@@ -165,6 +140,7 @@ void		scan_dirs(int argc, char **argv, t_opts *opts)
 	struct stat	stats;
 
 	i = 0;
+	files = NULL;
 	//printf("l: %i, R: %i, a: %i, r: %i, t: %i\n", opts->l, opts->R, opts->a, opts->r, opts->t);
 	while (++i < argc)
 	{
@@ -173,15 +149,23 @@ void		scan_dirs(int argc, char **argv, t_opts *opts)
 			ft_putstr_fd("ls: ft_ls_open: No such file or directory\n", 2);
 			exit(1);
 		}
-		if (!(ft_strchr(&argv[i][0], '-') && ft_strequ(argv[i], "./ft_ls")))
+		if ((ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls")))
 		{
 			printf("ARGV: %s\n", argv[i]);
-			ft_list_add_back(&files, ft_lstnew(argv[i], sizeof(char *)));
+			ft_list_add_back(&files, ft_lstnew(ft_strdup(argv[i]), sizeof(char *)));
 		}
 	}
-	//ft_lstdelcont(&files, files->content);
-	print_list(files);
-	//display_dir_entries(argv[i], opts);
+	//print_list(files);
+	// if (!ft_list_size(files))
+		//display_dir_entries(".", opts); ????
+	// else
+		list_sort(files, cmp_lex);
+	//print_list(files);
+	while (files)
+	{
+		display_dir_entries(files, opts);
+		files = files->next;
+	}
 }
 
 int			main(int argc, char **argv)

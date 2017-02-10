@@ -43,6 +43,10 @@ typedef struct		s_opts
 
 void				display_stats(char* file, t_opts *opts);
 void				print_total(int count);
+//void				sort_files(t_list *start);
+void				list_sort(t_list *start, int (*f)(t_list *, t_list *));
+int					cmp_lex(t_list *, t_list *);
+int					cmp_time(t_list *p1, t_list *p2);
 
 #endif
 

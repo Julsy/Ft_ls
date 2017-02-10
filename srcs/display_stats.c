@@ -126,7 +126,7 @@ void			display_stats(char* file, t_opts *opts)
 	ft_printf("  %jd ", (intmax_t)stats.st_nlink);
 	ft_printf("%5s ", getpwuid(stats.st_uid)->pw_name);
 	ft_printf("%5s", getgrgid(stats.st_gid)->gr_name);
-	ft_printf("%5jd ", (intmax_t)stats.st_size);
+	ft_printf("%8jd ", (intmax_t)stats.st_size);
 	print_time(stats.st_mtime, stats);
 	print_name_or_link(file, stats.st_mode);
 }
