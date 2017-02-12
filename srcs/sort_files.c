@@ -1,33 +1,27 @@
 #include "../includes/ft_ls.h"
 
-int		cmp_lex(t_list *p1, t_list *p2)
+int		cmp_lex(t_file *p1, t_file *p2)
 {
-	char* str1;
-	char* str2;
-
-	str1 = (char *)p1;
-	str2 = (char *)p2;
-	return (ft_strcmp(str1, str2));
+	int cmpres;
+	cmpres = (ft_strcmp(p1->name, p2->name));
+	return (cmpres > 0);//ASCENDING ORDER: when A < B THEN cmpres=0, when B > A then cmpres=1 and swap will be done;
 }
 
-int		cmp_time(t_list *p1, t_list *p2)
+int		cmp_time(t_file *p1, t_file *p2)
 {
-	struct stat stats;
-	char*		str1;
-	char*		str2;
-	time_t		time1;
-	time_t		time2;
 
-	str1 = (char *)p1;
-	str2 = (char *)p2;
-	stat(str1, &stats);
-	time1 = stats.st_mtime;
-	stat(str2, &stats);
-	time2 = stats.st_mtime;
-	if (time1 == time2)
-		return (cmp_lex(p1, p2));
+	if (p1->stats.st_mtimespec.tv_sec == p2->stats.st_mtimespec.tv_sec)
+	{
+		if (p1->stats.st_mtimespec.tv_nsec
+			== p2->stats.st_mtimespec.tv_nsec)
+			return (cmp_lex(p1, p2));
+		else
+			return (p1->stats.st_mtimespec.tv_nsec
+				> p2->stats.st_mtimespec.tv_nsec);//ASC ORDER
+	}
 	else
-		return (time1 < time2);
+		return (p1->stats.st_mtimespec.tv_sec
+			> p2->stats.st_mtimespec.tv_sec);//ASC ORDER
 }
 
 static void	lst_content_swap(t_list *one, t_list *two)
@@ -39,7 +33,7 @@ static void	lst_content_swap(t_list *one, t_list *two)
 	two->content = tmp;
 }
 
-void		list_sort(t_list *start, int (*f)(t_list *, t_list *))
+void		list_sort(t_list *start, int (*f)(t_file *, t_file *))
 {
 	int		swapped;
 	t_list	*left;
@@ -65,9 +59,3 @@ void		list_sort(t_list *start, int (*f)(t_list *, t_list *))
 		right = left;
 	}
 }
-
-// void		sort_files(t_list *files, t_opts opts)
-// {
-// 	if (opts->t)
-// 		list_sort(files, cmp_time);
-// }

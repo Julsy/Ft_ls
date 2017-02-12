@@ -41,12 +41,18 @@ typedef struct		s_opts
 	int				t;
 }					t_opts;
 
-void				display_stats(char* file, t_opts *opts);
+typedef struct		s_file
+{
+	char			*name;
+	struct stat		stats;
+}					t_file;
+
+void				display_stats(t_file *file, t_opts *opts);
 void				print_total(int count);
 //void				sort_files(t_list *start);
-void				list_sort(t_list *start, int (*f)(t_list *, t_list *));
-int					cmp_lex(t_list *, t_list *);
-int					cmp_time(t_list *p1, t_list *p2);
+void				list_sort(t_list *start, int (*f)(t_file *, t_file *));
+int					cmp_lex(t_file *, t_file *);
+int					cmp_time(t_file *, t_file *);
 
 #endif
 

@@ -64,15 +64,17 @@ void		display_dir_entries(t_list *files, t_opts *opts)
 {
 	DIR				*folder;
 	struct dirent	*file;
-	char			**entries;
+	t_file			*entry;
+	t_list			*entries;
+	struct stat		stats;
 	size_t			count;
 	size_t			i;
 	int				a;
-	struct stat		stats;
 
 	i = -1;
 	a = 0;
 	count = 0;
+	entries = NULL;
 	// if (!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode)))
 	// 	ft_printf("%s\n", dir); // not a dir
 	// if (stat(argv[i], &stats) == 0 && S_ISDIR(stats.st_mode))
@@ -80,21 +82,20 @@ void		display_dir_entries(t_list *files, t_opts *opts)
 	// 	if (opts->l)
 	// 		ft_printf("%s:\n", argv[i]); // multiple dirs
 	// }
-	folder = opendir(files->content);
-	entries = ft_memalloc(sizeof(char *));
+	folder = opendir(((t_file *)files->content)->name);//FIX FILE PROCESSING
+	entry = (t_file *)ft_memalloc(sizeof(t_file));
 	file = readdir(folder);
 	while (file)
 	{
-		if (!(stat(file->d_name, &stats) == 0 && S_ISDIR(stats.st_mode))
-		&& (opts->a || file->d_name[0] != '.'))
-			display_stats(file->d_name, opts);
-		else if (opts->a || file->d_name[0] != '.')
+		if(opts->a || file->d_name[0] != '.')
 		{
-			entries[count] = file->d_name;
-			count++;
+			entry->name=ft_strdup(file->d_name);
+			stat(entry->name, &(entry->stats));
+			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));			
 		}
 		file = readdir(folder);
 	}
+	free(entry);
 	// if (opts->l)
 	// 	print_total();
 	// 	while ((file = readdir(folder)) != NULL)
@@ -110,8 +111,12 @@ void		display_dir_entries(t_list *files, t_opts *opts)
 	// 	qsort(entries, count, sizeof(char*), cmp_time);	
 	// else
 	// 	qsort(entries, count, sizeof(char*), cmp_lex);
-	while (++i < count)
-		display_stats(entries[i], opts);
+	list_sort(entries, cmp_lex);
+	while (entries)
+	{
+		display_stats((t_file *)entries->content, opts);
+		entries = entries->next;
+	}
 	closedir(folder);
 }
 
@@ -119,28 +124,22 @@ void	print_list(t_list *list)
 {
 	if (list)
 	{
-		printf("content: %s\n", (char *)list->content);
+		printf("content: %s\n", ((t_file *)list->content)->name);
 		print_list(list->next);
 	}
 }
-
-// static void print_list(t_list *head)
-// {
-//     while(head) {
-//         printf("%lu->", head->content_size);
-//         head = head->next;
-//     }
-//     printf("\n");
-// }
 
 void		scan_dirs(int argc, char **argv, t_opts *opts)
 {
 	int			i;
 	t_list		*files;
-	struct stat	stats;
+	t_file		*tmp;
 
 	i = 0;
 	files = NULL;
+	
+	tmp = (t_file *)ft_memalloc(sizeof(t_file));
+	
 	//printf("l: %i, R: %i, a: %i, r: %i, t: %i\n", opts->l, opts->R, opts->a, opts->r, opts->t);
 	while (++i < argc)
 	{
@@ -151,19 +150,29 @@ void		scan_dirs(int argc, char **argv, t_opts *opts)
 		}
 		if ((ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls")))
 		{
-			printf("ARGV: %s\n", argv[i]);
-			ft_list_add_back(&files, ft_lstnew(ft_strdup(argv[i]), sizeof(char *)));
+			//printf("ARGV: %s\n", argv[i]);
+			tmp->name=ft_strdup(argv[i]);
+			stat(tmp->name, &(tmp->stats));
+			ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
 		}
 	}
+	free(tmp);
 	//print_list(files);
-	// if (!ft_list_size(files))
-		//display_dir_entries(".", opts); ????
-	// else
+	if (!ft_list_size(files))
+	{
+		tmp->name=ft_strdup(".");
+		stat(tmp->name, &(tmp->stats));
+		ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
+	}
+	else
 		list_sort(files, cmp_lex);
 	//print_list(files);
 	while (files)
 	{
-		display_dir_entries(files, opts);
+		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
+			display_dir_entries(files, opts);
+		else
+			display_stats((t_file *)files->content, opts);
 		files = files->next;
 	}
 }

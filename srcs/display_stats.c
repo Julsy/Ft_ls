@@ -55,28 +55,8 @@ static void		print_name_or_link(char* file, mode_t mode)
 		ft_printf(" %s\n", file);
 }
 
-static void		print_time(time_t mod_time, struct stat stats)
+static void		print_time(time_t mod_time)
 {
-	// int		diff;
-	// char	*time_str;
-	// char	*temp;
-	// char	*temp2;
-
-	// diff = time(NULL) - mod_time;
-	// time_str = ctime(&mod_time);
-	// if (diff > SIX_MONTHS_AGO || diff < 0)
-	// {
-	// 	temp = ft_strsub(time_str, 4, 6);
-	// 	temp2 = ft_strsub(time_str, 20, 4);
-	// 	ft_printf(" %s  %s", temp, temp2);
-	// 	//free(temp2);
-	// }
-	// else
-	// {
-	// 	temp = ft_strsub(time_str, 4, 12);
-	// 	ft_printf(" %s", temp);
-	// }
-	//free(temp);
 	char	*str;
 	char	*end;
 	char	*start;
@@ -111,22 +91,23 @@ void			print_total(int count)
 	ft_putchar('\n');
 }
 
-void			display_stats(char* file, t_opts *opts)
+void			display_stats(t_file *file, t_opts *opts)
 {
-	struct stat stats;
-
-	stat(file, &stats);
 	if (opts->l == 0)
 	{
-		ft_printf("%s\n", file);
+		ft_printf("%s\n", file->name);
 		return ;
 	}
-	print_filetype(stats.st_mode);
-	print_permissions(stats.st_mode);
-	ft_printf("  %jd ", (intmax_t)stats.st_nlink);
-	ft_printf("%5s ", getpwuid(stats.st_uid)->pw_name);
-	ft_printf("%5s", getgrgid(stats.st_gid)->gr_name);
-	ft_printf("%8jd ", (intmax_t)stats.st_size);
-	print_time(stats.st_mtime, stats);
-	print_name_or_link(file, stats.st_mode);
+
+	print_filetype(file->stats.st_mode);
+	print_permissions(file->stats.st_mode);
+	ft_printf("  %jd ", (intmax_t)file->stats.st_nlink);
+	if(getpwuid(file->stats.st_uid))
+		ft_printf("%5s ", getpwuid(file->stats.st_uid)->pw_name);
+	else
+		ft_printf("%5s ", "n/a");
+	ft_printf("%5s", getgrgid(file->stats.st_gid)->gr_name);
+	ft_printf("%8jd ", (intmax_t)file->stats.st_size);
+	print_time(file->stats.st_mtime);
+	print_name_or_link(file->name, file->stats.st_mode);
 }
