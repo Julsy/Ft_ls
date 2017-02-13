@@ -47,17 +47,16 @@ typedef struct		s_file
 	struct stat		stats;
 }					t_file;
 
+int					file_exists(char *filename);
 void				display_stats(t_file *file, t_opts *opts);
-void				print_total(int count);
-//void				sort_files(t_list *start);
-void				list_sort(t_list *start, int (*f)(t_file *, t_file *));
-int					cmp_lex(t_file *, t_file *);
-int					cmp_time(t_file *, t_file *);
+void				print_total(t_list *folder);
+void				list_sort(t_list *start, int (*f)(t_file *, t_file *, int), int order);
+int					cmp_lex(t_file *, t_file *, int order);
+int					cmp_time(t_file *, t_file *, int order);
+
+void	print_list(t_list *list);
 
 #endif
 
 
-// fix time issues
-// fix number of links
-// rewrite qsort algo
 // -a opt: add 'total' # of files

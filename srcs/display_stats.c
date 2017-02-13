@@ -84,11 +84,19 @@ static void		print_time(time_t mod_time)
 	ft_putstr(start);
 }
 
-void			print_total(int count)
+void			print_total(t_list *folder)
 {
-	ft_putstr("total ");
-	ft_putnbr(count);
-	ft_putchar('\n');
+	blkcnt_t blocks;
+
+	blocks = 0;
+	//print_list(folder);
+	while (folder)
+	{
+		//printf("1\n");
+		blocks += ((t_file *)folder->content)->stats.st_blocks;
+		folder = folder->next;
+	}
+	ft_printf("total %lld\n", (blocks));
 }
 
 void			display_stats(t_file *file, t_opts *opts)
@@ -98,14 +106,10 @@ void			display_stats(t_file *file, t_opts *opts)
 		ft_printf("%s\n", file->name);
 		return ;
 	}
-
 	print_filetype(file->stats.st_mode);
 	print_permissions(file->stats.st_mode);
-	ft_printf("  %jd ", (intmax_t)file->stats.st_nlink);
-	if(getpwuid(file->stats.st_uid))
-		ft_printf("%5s ", getpwuid(file->stats.st_uid)->pw_name);
-	else
-		ft_printf("%5s ", "n/a");
+	ft_printf("%3jd ", (intmax_t)file->stats.st_nlink);
+	ft_printf("%5s ", getpwuid(file->stats.st_uid)->pw_name);
 	ft_printf("%5s", getgrgid(file->stats.st_gid)->gr_name);
 	ft_printf("%8jd ", (intmax_t)file->stats.st_size);
 	print_time(file->stats.st_mtime);

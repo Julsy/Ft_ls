@@ -60,63 +60,107 @@ t_opts		*get_opts(int argc, char **argv)
 	return (opts);
 }
 
-void		display_dir_entries(t_list *files, t_opts *opts)
+void	print_permissions(t_file *file)
+{
+	int			mode;
+
+	mode = file->stats.st_mode;
+	ft_printf((mode & S_IRUSR) ? "r" : "-");
+	ft_printf((mode & S_IWUSR) ? "w" : "-");
+	if (mode & S_ISUID)
+		ft_printf((mode & S_IXUSR) ? "s" : "S");
+	else
+		ft_printf((mode & S_IXUSR) ? "x" : "-");
+	ft_printf((mode & S_IRGRP) ? "r" : "-");
+	ft_printf((mode & S_IWGRP) ? "w" : "-");
+	if (mode & S_ISGID)
+		ft_printf((mode & S_IXGRP) ? "s" : "S");
+	else
+		ft_printf((mode & S_IXGRP) ? "x" : "-");
+	ft_printf((mode & S_IROTH) ? "r" : "-");
+	ft_printf((mode & S_IWOTH) ? "w" : "-");
+	if (mode & S_ISVTX)
+		ft_printf((mode & S_IXUSR) ? "t" : "T");
+	else
+		ft_printf((mode & S_IXOTH) ? "x" : "-");
+}
+
+void		display_dir_entries(t_list *parent, t_list *files, t_opts *opts)
 {
 	DIR				*folder;
 	struct dirent	*file;
 	t_file			*entry;
 	t_list			*entries;
+	t_list			*tmp_entries;
 	struct stat		stats;
 	size_t			count;
 	size_t			i;
 	int				a;
+	char			*parent_folder;
 
 	i = -1;
 	a = 0;
 	count = 0;
 	entries = NULL;
-	// if (!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode)))
-	// 	ft_printf("%s\n", dir); // not a dir
-	// if (stat(argv[i], &stats) == 0 && S_ISDIR(stats.st_mode))
-	// {
-	// 	if (opts->l)
-	// 		ft_printf("%s:\n", argv[i]); // multiple dirs
-	// }
-	folder = opendir(((t_file *)files->content)->name);//FIX FILE PROCESSING
+
+	// printf("1st elem:\n");
+	// print_list(files);
+
+	// printf("parent: %s\n", ((t_file *)parent->content)->name);
+	// printf("current: %s\n", ((t_file *)files->content)->name);
+	if(!ft_strequ(((t_file *)parent->content)->name, ((t_file *)files->content)->name))
+	{
+		// printf("update dir: %s\n", ((t_file *)files->content)->name);
+		parent_folder = ft_strjoin(((t_file *)parent->content)->name, ((t_file *)files->content)->name);
+		((t_file *)files->content)->name=ft_strjoin(parent_folder, "/");
+		// printf("to: %s\n", ((t_file *)files->content)->name);
+	} else {
+		((t_file *)files->content)->name=ft_strjoin(((t_file *)files->content)->name, "/");		
+	}
+	printf("%s:\n", ((t_file *)files->content)->name);
+	// printf("2:%s\n",((t_file *)files->content)->name);
+	folder = opendir(((t_file *)files->content)->name);
 	entry = (t_file *)ft_memalloc(sizeof(t_file));
+	// printf("3\n");
 	file = readdir(folder);
+	// printf("\n");
 	while (file)
 	{
+		// printf("FILE NAME %s\n", file->d_name);
 		if(opts->a || file->d_name[0] != '.')
 		{
-			entry->name=ft_strdup(file->d_name);
-			stat(entry->name, &(entry->stats));
+			// printf("4\n");
+			entry->name = ft_strdup(file->d_name);
+			stat(ft_strjoin(((t_file *)files->content)->name, file->d_name), &(entry->stats));
 			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));			
 		}
 		file = readdir(folder);
 	}
 	free(entry);
-	// if (opts->l)
-	// 	print_total();
-	// 	while ((file = readdir(folder)) != NULL)
-	// 	{
-	// 		if ((stat(file->d_name, &stats) == 0 && S_ISDIR(stats.st_mode)
-	// 			&& (opts->a || file->d_name[0] != '.')))
-	// 				a++;
-	// 	}
-	// }
-	// printf("%i\n", a);
-	
-	// if (opts->t)
-	// 	qsort(entries, count, sizeof(char*), cmp_time);	
-	// else
-	// 	qsort(entries, count, sizeof(char*), cmp_lex);
-	list_sort(entries, cmp_lex);
+	// printf("5\n");
+	list_sort(entries, (opts->t) ? cmp_time : cmp_lex, opts->r);
+	tmp_entries = entries;
+	// printf("6\n");
 	while (entries)
 	{
 		display_stats((t_file *)entries->content, opts);
 		entries = entries->next;
 	}
+	entries = tmp_entries;
+	printf("\n");
+	// print_list(entries);
+	if (opts->R)
+	{
+		while (entries)
+		{
+			//printf("go deep-> %i\n", ((t_file *)entries->content)->stats.st_mode);
+			//print_permissions((t_file *)entries->content);
+			if (S_ISDIR(((t_file *)entries->content)->stats.st_mode))
+				display_dir_entries(files, entries, opts);
+			entries = entries->next;
+		}
+	}
+	// printf("done!\n");
 	closedir(folder);
 }
 
@@ -143,34 +187,36 @@ void		scan_dirs(int argc, char **argv, t_opts *opts)
 	//printf("l: %i, R: %i, a: %i, r: %i, t: %i\n", opts->l, opts->R, opts->a, opts->r, opts->t);
 	while (++i < argc)
 	{
-		if (argv[i][0] == 0)
-		{
-			ft_putstr_fd("ls: ft_ls_open: No such file or directory\n", 2);
-			exit(1);
-		}
-		if ((ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls")))
+		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))
+			ft_printf("ls: %s: No such file or directory\n", argv[i]);
+		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
 		{
 			//printf("ARGV: %s\n", argv[i]);
-			tmp->name=ft_strdup(argv[i]);
+			tmp->name = ft_strdup(argv[i]);
 			stat(tmp->name, &(tmp->stats));
 			ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
 		}
 	}
-	free(tmp);
 	//print_list(files);
-	if (!ft_list_size(files))
+	if (!ft_list_size(files) && (!argv[1] || file_exists(".")))
 	{
-		tmp->name=ft_strdup(".");
+		tmp->name = ft_strdup(".");
 		stat(tmp->name, &(tmp->stats));
 		ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
 	}
 	else
-		list_sort(files, cmp_lex);
+		list_sort(files, (opts->t) ? cmp_time : cmp_lex, opts->r);
 	//print_list(files);
+	free(tmp);
 	while (files)
 	{
 		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
-			display_dir_entries(files, opts);
+		{
+			ft_printf("\n%s:\n", ((t_file *)files->content)->name);
+			if (opts->l)
+				print_total(files);
+			display_dir_entries(files, files, opts);
+		}
 		else
 			display_stats((t_file *)files->content, opts);
 		files = files->next;

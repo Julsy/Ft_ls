@@ -2,7 +2,7 @@ NAME = ft_ls
 
 CFLAGS = -Wall -Wextra -Werror
 
-FILES = ft_ls.c display_stats.c sort_files.c
+FILES = ft_ls.c display_stats.c sort_files.c help_funcs.c
 
 FT_PRINTF = ft_printf.c helper.c get_flags.c process_char.c process_ptr.c \
 process_digit_id.c process_digit_oux.c process_percent.c process_width.c process_precision.c \
