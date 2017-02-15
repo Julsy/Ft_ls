@@ -43,14 +43,38 @@ $(NAME):
 	@gcc $(CFlAGS) $(HDR) -c $(SRCS)
 	@gcc $(CFlAGS) -o $(NAME) $(OBJECTS)
 	@echo "./ft_ls is ready to test"
-	@/bin/rm -f $(OBJECTS)
 
 clean:
 	@echo "deleting all objects..."
 	@/bin/rm -f $(OBJECTS)
 
 fclean: clean
-	@echo "deleting executable..."
+	@echo "deleting executable and libraries..."
 	@/bin/rm -f $(NAME)
 
 re: fclean all
+
+#  DELETE CLEAN FROM NAME RULE
+
+# VPATH       =   $(SRCSFD):$(SRCSFD)/ft_printf_utils
+# .PHONY: all clean fclean re
+# all: $(NAME)
+# $(NAME): $(OBJS)
+#     @echo "$(GREEN)Libft objects created.$(NC)"
+#     @ar src $@ $(OBJS)
+#     @ranlib $@
+#     @echo "$(GREEN)Libft created.$(NC)"
+# $(OBJSFD):
+#     @mkdir $@
+# $(OBJSFD)/%.o: %.c | $(OBJSFD)
+#     @$(CC) $(CFLAGS) -I$(INCLFD) -c $< -o $@
+# clean:
+#     @$(RM) $(RMFLAGS) $(OBJS)
+#     @echo "$(RED)Libft objects deleted.$(NC)"
+#     @$(RM) $(RMFLAGS) $(OBJSFD)
+# fclean: clean
+#     @$(RM) -rf $(NAME)
+#     @echo "$(RED)Libft deleted.$(NC)"
+# re: fclean all
+
+# @/bin/rm -f $(OBJECTS) 

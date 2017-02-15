@@ -57,6 +57,3 @@ int					cmp_time(t_file *, t_file *, int order);
 void	print_list(t_list *list);
 
 #endif
-
-
-// -a opt: add 'total' # of files

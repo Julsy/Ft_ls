@@ -1,18 +1,19 @@
 #include "../includes/ft_ls.h"
 
-int		cmp_lex(t_file *p1, t_file *p2, int order)
+int			cmp_lex(t_file *p1, t_file *p2, int order)
 {
+	/* order: when A < B then cmp_res = 0, when B > A then cmp_res = 1 and swap will be done */
 	int cmp_res;
+
 	cmp_res = (ft_strcmp(p1->name, p2->name));
 	if (order)
-		return (cmp_res < 0 ? 1 : 0);//ASCENDING ORDER: when A < B THEN cmpres=0, when B > A then cmpres=1 and swap will be done;
+		return (cmp_res < 0 ? 1 : 0);
 	else 
 		return (cmp_res > 0 ? 1 : 0);
 }
 
-int		cmp_time(t_file *p1, t_file *p2, int order)
+int			cmp_time(t_file *p1, t_file *p2, int order)
 {
-
 	if (p1->stats.st_mtimespec.tv_sec == p2->stats.st_mtimespec.tv_sec)
 	{
 		if (p1->stats.st_mtimespec.tv_nsec

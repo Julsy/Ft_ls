@@ -89,14 +89,12 @@ void			print_total(t_list *folder)
 	blkcnt_t blocks;
 
 	blocks = 0;
-	//print_list(folder);
 	while (folder)
 	{
-		//printf("1\n");
 		blocks += ((t_file *)folder->content)->stats.st_blocks;
 		folder = folder->next;
 	}
-	ft_printf("total %lld\n", (blocks));
+	ft_printf("total %zu\n", (blocks));
 }
 
 void			display_stats(t_file *file, t_opts *opts)
