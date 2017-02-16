@@ -95,7 +95,7 @@ t_list		*read_dir(t_list *parent, t_list *files, t_opts *opts)
 		if(opts->a || file->d_name[0] != '.')
 		{
 			entry->name = ft_strdup(file->d_name);
-			stat(ft_strjoin(((t_file *)files->content)->name, file->d_name), &(entry->stats));
+			lstat(ft_strjoin(((t_file *)files->content)->name, file->d_name), &(entry->stats));
 			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));			
 		}
 		file = readdir(folder);
@@ -159,14 +159,14 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
 		{
 			tmp->name = ft_strdup(argv[i]);
-			stat(tmp->name, &(tmp->stats));
+			lstat(tmp->name, &(tmp->stats));
 			ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
 		}
 	}
 	if (!ft_list_size(files) && (!argv[1] || file_exists(".")))
 	{
 		tmp->name = ft_strdup(".");
-		stat(tmp->name, &(tmp->stats));
+		lstat(tmp->name, &(tmp->stats));
 		ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
 	}
 	else

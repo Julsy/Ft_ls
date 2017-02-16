@@ -57,3 +57,6 @@ int					cmp_time(t_file *, t_file *, int order);
 void	print_list(t_list *list);
 
 #endif
+
+
+// fix formatting - add width of the fields

@@ -109,7 +109,7 @@ void			display_stats(t_file *file, t_opts *opts)
 	ft_printf("%3jd ", (intmax_t)file->stats.st_nlink);
 	ft_printf("%5s ", getpwuid(file->stats.st_uid)->pw_name);
 	ft_printf("%5s", getgrgid(file->stats.st_gid)->gr_name);
-	ft_printf("%8jd ", (intmax_t)file->stats.st_size);
+	ft_printf("%8lld ", (intmax_t)file->stats.st_size);
 	print_time(file->stats.st_mtime);
 	print_name_or_link(file->name, file->stats.st_mode);
 }

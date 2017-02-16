@@ -24,7 +24,7 @@ ft_putendl.c ft_putnbr.c ft_putchar_fd.c ft_putstr_fd.c ft_putendl_fd.c \
 ft_putnbr_fd.c ft_lstnew.c ft_lstdelone.c ft_lstdel.c ft_lstadd.c ft_lstiter.c \
 ft_lstmap.c ft_list_size.c ft_list_add_back.c ft_list_last.c \
 ft_list_push_params.c ft_list_nth.c ft_list_reverse.c ft_realloc.c ft_abs.c \
-ft_itoa_base.c ft_strndup.c ft_itoa_unbase.c
+ft_itoa_base.c ft_strndup.c ft_itoa_unbase.c ft_strlen_num.c
 
 CFLAGS = -Wall -Wextra -Werror
 OBJECTS = $(FILENAMES:.c=.o)

@@ -54,7 +54,7 @@ void				*ft_memchr(const void *s, int c, size_t n);
 int					ft_memcmp(const void *s1, const void *s2, size_t n);
 void				*ft_memalloc(size_t size);
 void				ft_memdel(void **ap);
-
+void				*ft_realloc(void *ptr, size_t size);
 
 /*
 ** Put
@@ -69,7 +69,6 @@ void				ft_putendl_fd(char const *s, int fd);
 void				ft_putnbr(long long n);
 void				ft_putnbr_fd(int n, int fd);
 void				ft_print_memory(const void *addr, size_t size);
-void				*ft_realloc(void *ptr, size_t size);
 
 /*
 ** Str
@@ -102,6 +101,7 @@ char				*ft_strsub(char const *s, unsigned int start, size_t len);
 char				*ft_strjoin(char const *s1, char const *s2);
 char				*ft_strtrim(char const *s);
 char				**ft_strsplit(char const *s, char c);
+int					ft_strlen_num(int x);
 
 /*
 ** List
