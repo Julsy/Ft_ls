@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/03 14:37:11 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/03 14:37:11 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/21 15:43:09 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ typedef struct		s_file
 }					t_file;
 
 int					file_exists(char *filename);
-void				display_stats(t_file *file, t_opts *opts);
+void				display_stats(t_file *file, t_file *parent, t_opts *opts);
 void				print_total(t_list *folder);
 void				list_sort(t_list *start, int (*f)(t_file *, t_file *, int), int order);
 int					cmp_lex(t_file *, t_file *, int order);

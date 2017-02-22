@@ -64,14 +64,14 @@ t_list		*modify_folder_name(t_list *parent, t_list *files)
 {
 	char	*parent_folder;
 
-	if (!ft_strequ(((t_file *)parent->content)->name, ((t_file *)files->content)->name))
+	if (parent && (!ft_strequ(((t_file *)parent->content)->name, ((t_file *)files->content)->name)))
 	{
 		parent_folder = ft_strjoin(((t_file *)parent->content)->name, ((t_file *)files->content)->name);
 		((t_file *)files->content)->name = ft_strjoin(parent_folder, "/");
 	}
 	else
 		((t_file *)files->content)->name = ft_strjoin(((t_file *)files->content)->name, "/");
-	if (!ft_strequ("./", ((t_file *)files->content)->name))
+	if (!ft_strequ("./", ((t_file *)files->content)->name) && parent)
 		ft_printf("\n%.*s:\n", ((int)ft_strlen(((t_file *)files->content)->name)) - 1,
 	((t_file *)files->content)->name);
 	return (files);
@@ -118,30 +118,30 @@ void		display_entries(t_list *parent, t_list *files, t_opts *opts)
 	tmp_entries = entries;
 	while (entries)
 	{
-		display_stats((t_file *)entries->content, opts);
+		display_stats((t_file *)entries->content, (parent ? (t_file *)parent->content : NULL), opts);
 		entries = entries->next;
 	}
 	entries = tmp_entries;
 	if (opts->R)
-	{
 		while (entries)
 		{
-			if (S_ISDIR(((t_file *)entries->content)->stats.st_mode))
+			if (S_ISDIR(((t_file *)entries->content)->stats.st_mode) &&
+			!ft_strequ(((t_file *)entries->content)->name, ".") &&
+			!ft_strequ(((t_file *)entries->content)->name, ".."))
 				display_entries(files, entries, opts);
 			entries = entries->next;
 		}
-	}
 	free(entries);
 }
 
-// void	print_list(t_list *list)
-// {
-// 	if (list)
-// 	{
-// 		printf("content: %s\n", ((t_file *)list->content)->name);
-// 		print_list(list->next);
-// 	}
-// }
+void	print_list(t_list *list)
+{
+	if (list)
+	{
+		printf("content: %s\n", ((t_file *)list->content)->name);
+		print_list(list->next);
+	}
+}
 
 static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 {
@@ -155,7 +155,7 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 	while (++i < argc)
 	{
 		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))
-			ft_printf("ls: %s: No such file or directory\n", argv[i]);
+			ft_printf("ft_ls: %s: No such file or directory\n", argv[i]);
 		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
 		{
 			tmp->name = ft_strdup(argv[i]);
@@ -185,9 +185,9 @@ int				main(int argc, char **argv)
 	while (files)
 	{
 		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
-			display_entries(files, files, opts);
+			display_entries(NULL, files, opts);
 		else
-			display_stats((t_file *)files->content, opts);
+			display_stats((t_file *)files->content, NULL, opts);
 		files = files->next;
 	}
 	free(opts);
