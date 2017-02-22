@@ -118,7 +118,7 @@ void		display_entries(t_list *parent, t_list *files, t_opts *opts)
 	tmp_entries = entries;
 	while (entries)
 	{
-		display_stats((t_file *)entries->content, (parent ? (t_file *)parent->content : NULL), opts);
+		display_stats((t_file *)entries->content, (parent ? (t_file *)parent->content : ((t_file *)files->content)), opts);
 		entries = entries->next;
 	}
 	entries = tmp_entries;
