@@ -176,7 +176,7 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 	tmp = (t_file *)ft_memalloc(sizeof(t_file));
 	while (++i < argc)
 	{
-		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))
+		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))  //need to stop if that was the only file!!
 			ft_printf("ft_ls: %s: No such file or directory\n", argv[i]);
 		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
 		{

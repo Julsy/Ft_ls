@@ -60,4 +60,7 @@ void	print_list(t_list *list);
 #endif
 
 
-// fix formatting - add width of the fields
+// fix formatting - width of the fields
+// check /dev folder for devices
+// check correction pages
+
