@@ -6,7 +6,7 @@
 #    By: iiliuk <iiliuk@student.42.us.org>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/09/27 17:42:31 by iiliuk            #+#    #+#              #
-#    Updated: 2016/11/10 20:09:10 by iiliuk           ###   ########.fr        #
+#    Updated: 2017/02/22 16:23:04 by iiliuk           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,16 +33,17 @@ OBJECTS = $(FILENAMES:.c=.o)
 
 all: $(NAME)
 
-clean:
-	/bin/rm -f $(OBJECTS)
-
-fclean: clean
-	/bin/rm -f $(NAME)
-
-re: fclean all
-
-libft.a: $(OBJECTS)
-	ar rcs $@ $(OBJECTS)
+$(NAME): $(OBJECTS)
+	@ar rcs $@ $(OBJECTS)
+	@ranlib $@
 
 %.o: %.c
-	gcc $(CFlAGS) -c $< -o $@
+	@gcc $(CFlAGS) -c $< -o $@
+
+clean:
+	@/bin/rm -f $(OBJECTS)
+
+fclean: clean
+	@/bin/rm -f $(NAME)
+
+re: fclean all

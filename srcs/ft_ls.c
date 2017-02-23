@@ -77,17 +77,14 @@ t_list		*modify_folder_name(t_list *parent, t_list *files)
 	return (files);
 }
 
-t_list		*read_dir(t_list *parent, t_list *files, t_opts *opts)
+t_list		*read_dir(DIR *folder, t_list *files, t_opts *opts)
 {
-	DIR				*folder;
 	struct dirent	*file;
 	t_file			*entry;
 	t_list			*entries;
 	struct stat		stats;
 
 	entries = NULL;
-	files = modify_folder_name(parent, files);
-	folder = opendir(((t_file *)files->content)->name);
 	entry = (t_file *)ft_memalloc(sizeof(t_file));
 	file = readdir(folder);
 	while (file)
@@ -96,11 +93,31 @@ t_list		*read_dir(t_list *parent, t_list *files, t_opts *opts)
 		{
 			entry->name = ft_strdup(file->d_name);
 			lstat(ft_strjoin(((t_file *)files->content)->name, file->d_name), &(entry->stats));
-			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));			
+			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));
 		}
 		file = readdir(folder);
 	}
 	free(entry);
+	return (entries);
+}
+
+t_list		*open_dir(t_list *parent, t_list *files, t_opts *opts)
+{
+	DIR				*folder;
+	t_list			*entries;
+	char			*file_name;
+
+	entries = NULL;
+	file_name = ft_strdup(((t_file *)files->content)->name);
+	files = modify_folder_name(parent, files);
+	folder = opendir(((t_file *)files->content)->name);
+	if (!folder)
+	{
+		ft_printf("ft_ls: %s: Permission denied\n", file_name);
+		free(file_name);
+		return (NULL);
+	}
+	entries = read_dir(folder, files, opts);
 	closedir(folder);
 	return (entries);
 }
@@ -110,15 +127,20 @@ void		display_entries(t_list *parent, t_list *files, t_opts *opts)
 	t_list			*entries;
 	t_list			*tmp_entries;
 	struct stat		stats;
-
-	entries = read_dir(parent, files, opts);
+	int				width[6];
+	int				spec;
+	
+	if (!(entries = open_dir(parent, files, opts)))
+		return ;
 	if (opts->l)
 		print_total(entries);
 	list_sort(entries, (opts->t) ? cmp_time : cmp_lex, opts->r);
 	tmp_entries = entries;
 	while (entries)
 	{
-		display_stats((t_file *)entries->content, (parent ? (t_file *)parent->content : ((t_file *)files->content)), opts);
+		spec = get_width_if_spec(entries, width);
+		display_stats((t_file *)entries->content, (parent ?
+		(t_file *)parent->content : ((t_file *)files->content)), opts, width, spec);
 		entries = entries->next;
 	}
 	entries = tmp_entries;
@@ -177,8 +199,10 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 
 int				main(int argc, char **argv)
 {
-	t_list *files;
-	t_opts *opts;
+	t_list	*files;
+	t_opts	*opts;
+	int		width[6];
+	int		spec;
 
 	opts = get_opts(argc, argv);
 	files = scan_dirs(argc, argv, opts);
@@ -187,9 +211,13 @@ int				main(int argc, char **argv)
 		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
 			display_entries(NULL, files, opts);
 		else
-			display_stats((t_file *)files->content, NULL, opts);
+		{
+			spec = get_width_if_spec(files, width);
+			display_stats((t_file *)files->content, NULL, opts, width, spec);
+		}
 		files = files->next;
 	}
+	free(files);
 	free(opts);
 	return (0);
 }

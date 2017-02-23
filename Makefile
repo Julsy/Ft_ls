@@ -36,45 +36,26 @@ HDR = -I./includes
 
 .PHONY: all clean fclean re
 
+RED			=	\033[0;31m
+GREEN		=	\033[0;32m
+NC			=	\033[0m
+
 all: $(NAME)
 
 $(NAME):
-	@echo "compiling executable..."
+	@echo "$(GREEN)compiling executable...$(NC)"
 	@gcc $(CFlAGS) $(HDR) -c $(SRCS)
 	@gcc $(CFlAGS) -o $(NAME) $(OBJECTS)
-	@echo "./ft_ls is ready to test"
+	@echo "$(GREEN)./ft_ls is ready to test$(NC)"
 
 clean:
-	@echo "deleting all objects..."
+	@echo "$(RED)deleting all objects...$(NC)"
 	@/bin/rm -f $(OBJECTS)
+	@make -C srcs/libft clean
 
 fclean: clean
-	@echo "deleting executable and libraries..."
+	@echo "$(RED)deleting executable and libraries...$(NC)"
 	@/bin/rm -f $(NAME)
+	@make -C srcs/libft fclean
 
 re: fclean all
-
-#  DELETE CLEAN FROM NAME RULE
-
-# VPATH       =   $(SRCSFD):$(SRCSFD)/ft_printf_utils
-# .PHONY: all clean fclean re
-# all: $(NAME)
-# $(NAME): $(OBJS)
-#     @echo "$(GREEN)Libft objects created.$(NC)"
-#     @ar src $@ $(OBJS)
-#     @ranlib $@
-#     @echo "$(GREEN)Libft created.$(NC)"
-# $(OBJSFD):
-#     @mkdir $@
-# $(OBJSFD)/%.o: %.c | $(OBJSFD)
-#     @$(CC) $(CFLAGS) -I$(INCLFD) -c $< -o $@
-# clean:
-#     @$(RM) $(RMFLAGS) $(OBJS)
-#     @echo "$(RED)Libft objects deleted.$(NC)"
-#     @$(RM) $(RMFLAGS) $(OBJSFD)
-# fclean: clean
-#     @$(RM) -rf $(NAME)
-#     @echo "$(RED)Libft deleted.$(NC)"
-# re: fclean all
-
-# @/bin/rm -f $(OBJECTS) 

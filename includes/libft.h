@@ -6,13 +6,13 @@
 /*   By: iiliuk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/21 10:52:13 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/01/10 12:51:26 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/22 16:41:24 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
-
+# define MAX(A, B) (((A) > (B)) ? (A) : (B))
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
