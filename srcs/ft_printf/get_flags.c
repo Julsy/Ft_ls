@@ -59,7 +59,7 @@ static void		get_star(char *fmt, t_flags *got_flags, va_list *args)
 			}
 			else
 			{
-				got_flags->left_justify = (arg < 0) ? 1 : 0;
+				got_flags->left_justify = (got_flags->left_justify || arg < 0) ? 1 : 0;
 				got_flags->got_width = 1;
 				got_flags->width = ft_abs(arg);
 			}

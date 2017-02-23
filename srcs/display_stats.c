@@ -42,7 +42,7 @@ static void		print_filetype(mode_t mode)
 
 static void		print_name_or_link(t_file *file, t_file *parent, mode_t mode)
 {
-	char		link_buf[1024];
+	char		link_buf[10024];
 	ssize_t		count;
 	char		*path;
 
@@ -56,19 +56,17 @@ static void		print_name_or_link(t_file *file, t_file *parent, mode_t mode)
 		}
 		else
 			path = ft_strdup(file->name);
+
 		count = readlink(path, link_buf, sizeof(link_buf));
-		if (count >= 0)
-		{
-			link_buf[count] = '\0';
-			ft_printf(" %s -> %s\n", file->name, link_buf);
-			free(path);
-		}
-		else
+		if (count < 0)
 		{
 			free(path);
 			perror("readlink");
 			exit(EX_IOERR);
 		}
+		link_buf[count] = '\0';
+		ft_printf(" %s -> %s\n", file->name, link_buf);
+		free(path);
 	}
 	else
 		ft_printf(" %s\n", file->name);
@@ -116,30 +114,38 @@ void			print_total(t_list *folder)
 	ft_printf("total %zu\n", (blocks));
 }
 
-int				get_width_if_spec(t_list *files, int width[6])
+int				get_width_if_spec(t_list *files, int w[6])
 {
 	int	special;
+	t_file *tmp;
 
-	special = 0;	
-	width[0] = 0;
-	width[1] = 0;
-	width[2] = 0;
-	width[3] = 0;
-	width[4] = 0;
-	width[5] = 0;
+	special = 0;
+	w[0] = 0;
+	w[1] = 0;
+	w[2] = 0;
+	w[3] = 0;
+	w[4] = 0;
+	w[5] = 0;
 	while (files)
 	{
-		width[0] = MAX(ft_strlen_num(((t_file *)files->content)->stats.st_nlink), width[0]);
-		width[1] = MAX(ft_strlen((char *)getpwuid(((t_file *)files->content)->stats.st_uid)) + 1, width[1]);
-		width[2] = MAX(ft_strlen((char *)getgrgid(((t_file *)files->content)->stats.st_gid)), width[2]);
-		width[3] = MAX(ft_strlen_num(((t_file *)files->content)->stats.st_size), width[3]);
-		width[4] = MAX(ft_strlen_num(((t_file *)files->content)->stats.st_rdev >> 24), width[4]);
-		width[5] = MAX(ft_strlen_num(((t_file *)files->content)->stats.st_rdev & 0xFFFFFF), width[5]);
-		if ((((t_file *)files->content)->stats.st_mode == S_IFBLK) || (((t_file *)files->content)->stats.st_mode == S_IFCHR))
-			special = 1;
+		tmp = (t_file *)files->content;
+		w[0] = MAX(ft_strlen_num(tmp->stats.st_nlink), w[0]);
+		if (getpwuid(tmp->stats.st_uid))
+			w[1] = MAX(ft_strlen(getpwuid(tmp->stats.st_uid)->pw_name), w[1]);
+		else
+			w[1]=MAX(ft_strlen(ft_itoa(tmp->stats.st_uid)), w[1]);
+		if (getgrgid(tmp->stats.st_gid))
+			w[2] = MAX(ft_strlen(getgrgid(tmp->stats.st_gid)->gr_name), w[2]);
+		else
+			w[2] = MAX(ft_strlen(ft_itoa(tmp->stats.st_gid)), w[2]);
+		w[3] = MAX(ft_strlen_num(tmp->stats.st_size), w[3]);
+		w[4] = MAX(ft_strlen_num(tmp->stats.st_rdev >> 24), w[4]);
+		w[5] = MAX(ft_strlen_num(tmp->stats.st_rdev & 0xFFFFFF), w[5]);
+		special = (((tmp->stats.st_mode & S_IFMT) == S_IFBLK) ||
+		((tmp->stats.st_mode & S_IFMT) == S_IFCHR));
 		files = files->next;
 	}
-	width[0]++;
+	w[0]++;
 	return (special);
 }
 
@@ -150,21 +156,28 @@ void			display_stats(t_file *file, t_file *parent, t_opts *opts, int width[6], i
 		ft_printf("%s\n", file->name);
 		return ;
 	}
+	//printf("%zd, %zd, %zd, %zd, %zd, %d\n", width[0], width[1], width[2], width[3], width[4], spec);
 	print_filetype(file->stats.st_mode);
 	print_permissions(file->stats.st_mode);
 	ft_printf(" %*d ", width[0], file->stats.st_nlink);
-	ft_printf(spec ? "%-*s " : "%*s ", width[1], getpwuid(file->stats.st_uid)->pw_name);
-	ft_printf(spec ? "%-*s " : "%*s ", width[2], getgrgid(file->stats.st_gid)->gr_name);
+	if (getpwuid(file->stats.st_uid))
+		ft_printf(spec ? "%-*s " : "%*s ", width[1], getpwuid(file->stats.st_uid)->pw_name);
+	else
+		ft_printf(spec ? "%-*s " : "%*s ", width[1], ft_itoa(file->stats.st_uid));
+	if (getgrgid(file->stats.st_gid))
+		ft_printf(spec ? " %-*s " : " %*s ", width[2], getgrgid(file->stats.st_gid)->gr_name);
+	else
+		ft_printf(spec ? " %-*s " : " %*s ", width[2], ft_itoa(file->stats.st_gid));
 	if (spec)
 	{
-		if (file->stats.st_mode == S_IFBLK)
-			ft_printf("%*s ", width[4], "");
+		if ((file->stats.st_mode & S_IFMT) == S_IFLNK)
+			ft_printf("  %*s ", width[4], "");
 		else
-			ft_printf("%*d,", width[4], file->stats.st_rdev >> 24);
-		ft_printf(" %*d", width[5], file->stats.st_rdev & 0xFFFFFF);
+			ft_printf("  %*d,", width[4], file->stats.st_rdev >> 24);
+		ft_printf(" %*d ", width[5], file->stats.st_rdev & 0xFFFFFF);
 	}
 	else
-		ft_printf("% *lld ", width[3], file->stats.st_size);
+		ft_printf(" %*lld ", width[3], file->stats.st_size);
 	print_time(file->stats.st_mtime);
 	print_name_or_link(file, parent, file->stats.st_mode);
 }

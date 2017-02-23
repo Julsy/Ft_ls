@@ -136,11 +136,10 @@ void		display_entries(t_list *parent, t_list *files, t_opts *opts)
 		print_total(entries);
 	list_sort(entries, (opts->t) ? cmp_time : cmp_lex, opts->r);
 	tmp_entries = entries;
+	spec = get_width_if_spec(entries, width);
 	while (entries)
 	{
-		spec = get_width_if_spec(entries, width);
-		display_stats((t_file *)entries->content, (parent ?
-		(t_file *)parent->content : ((t_file *)files->content)), opts, width, spec);
+		display_stats((t_file *)entries->content, ((t_file *)files->content), opts, width, spec);
 		entries = entries->next;
 	}
 	entries = tmp_entries;
@@ -170,22 +169,28 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 	int			i;
 	t_list		*files;
 	t_file		*tmp;
+	int			input;
 
 	i = 0;
+	input = 0;
 	files = NULL;
 	tmp = (t_file *)ft_memalloc(sizeof(t_file));
 	while (++i < argc)
 	{
-		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))  //need to stop if that was the only file!!
+		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))
+		{
 			ft_printf("ft_ls: %s: No such file or directory\n", argv[i]);
+			input++;
+		}
 		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
 		{
 			tmp->name = ft_strdup(argv[i]);
 			lstat(tmp->name, &(tmp->stats));
 			ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
+			input++;
 		}
 	}
-	if (!ft_list_size(files) && (!argv[1] || file_exists(".")))
+	if (input == 0 && !ft_list_size(files))
 	{
 		tmp->name = ft_strdup(".");
 		lstat(tmp->name, &(tmp->stats));
@@ -200,21 +205,36 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 int				main(int argc, char **argv)
 {
 	t_list	*files;
+	t_list	*prev;
 	t_opts	*opts;
 	int		width[6];
 	int		spec;
+	int 	size;
 
+	prev = NULL;
 	opts = get_opts(argc, argv);
 	files = scan_dirs(argc, argv, opts);
+	spec = get_width_if_spec(files, width);
+	size = ft_list_size(files);
+
 	while (files)
 	{
 		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
-			display_entries(NULL, files, opts);
-		else
 		{
-			spec = get_width_if_spec(files, width);
-			display_stats((t_file *)files->content, NULL, opts, width, spec);
+			if (!ft_strequ(".", ((t_file *)files->content)->name))
+			{
+				if (prev)
+				{
+					ft_printf("\n");
+				}
+				if(size>1)
+					ft_printf("%s:\n", ((t_file *)files->content)->name);
+			}
+			display_entries(NULL, files, opts);
 		}
+		else
+			display_stats((t_file *)files->content, NULL, opts, width, spec);
+		prev = files;
 		files = files->next;
 	}
 	free(files);
