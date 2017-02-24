@@ -1,14 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sort_files.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/02/23 17:26:14 by iiliuk            #+#    #+#             */
+/*   Updated: 2017/02/23 18:14:13 by iiliuk           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ft_ls.h"
 
 int			cmp_lex(t_file *p1, t_file *p2, int order)
 {
-	/* order: when A < B then cmp_res = 0, when B > A then cmp_res = 1 and swap will be done */
 	int cmp_res;
 
 	cmp_res = (ft_strcmp(p1->name, p2->name));
 	if (order)
 		return (cmp_res < 0 ? 1 : 0);
-	else 
+	else
 		return (cmp_res > 0 ? 1 : 0);
 }
 
@@ -22,7 +33,7 @@ int			cmp_time(t_file *p1, t_file *p2, int order)
 		if (order)
 			return (p1->stats.st_mtimespec.tv_nsec
 				> p2->stats.st_mtimespec.tv_nsec);
-		else 
+		else
 			return (p1->stats.st_mtimespec.tv_nsec
 				< p2->stats.st_mtimespec.tv_nsec);
 	}
@@ -43,7 +54,8 @@ static void	lst_content_swap(t_list *one, t_list *two)
 	two->content = tmp;
 }
 
-void		list_sort(t_list *start, int (*f)(t_file *, t_file *, int), int order)
+void		list_sort(t_list *start, int (*f)(t_file *, t_file *, int),
+																int order)
 {
 	int		swapped;
 	t_list	*left;

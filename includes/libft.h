@@ -6,7 +6,7 @@
 /*   By: iiliuk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/21 10:52:13 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/22 16:41:24 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/23 13:33:05 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,8 @@ t_list				*ft_list_push_params(int ac, char **av);
 t_list				*ft_list_nth(t_list *begin_list, unsigned int nbr);
 void				ft_list_reverse(t_list **begin_list);
 void				ft_lstdelcont(t_list **alst, void *cont);
+void				ft_lst_free_cont(void *cont, size_t cont_size);
+void				ft_print_list(t_list *list);
 
 /*
 ** Conversions

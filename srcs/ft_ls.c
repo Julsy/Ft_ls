@@ -1,178 +1,62 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_ls.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/02/23 13:28:17 by iiliuk            #+#    #+#             */
+/*   Updated: 2017/02/23 18:37:02 by iiliuk           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ft_ls.h"
 
-const char*			current_dir = ".";
-/*
-**  Program works as follows(not including handling errors):
-**  - Read arguments and sort them.
-**  - For the list of received files execute ft_ls.
-**  - If there is only one file that isn't a directory, display that file.
-**  - If there is one file that is a directory, pass entries to ft_ls.
-**  - If there are many files, pass all to ft_ls.
-**  - ft_ls:
-**       1. If -a not specified and file isn't specified in the
-**          command line, exclude ".*" files.
-**       2. Gather info about each file and format it according to options.
-**       3. Sort entries either by time (if -t specified) or
-**          lexicographically by name.
-**       4. If -r specified, reverse entries.
-**       5. If a file isn't specified in the command line or
-**          there are multiple file arguments, display name of file.// ?
-**       6. Print formatted entries of the list. If file is a directory and
-**          is specified in the command line, don't display it.
-**       7. If -R specified or it is directory specified in the command line:
-**             ~ For each directory collect entries.
-**             ~ For each directory execute ft_ls for each entry
-*/
+static t_opts	*init_opts(t_opts *opts)
+{
+	opts->l = 0;
+	opts->r = 0;
+	opts->a = 0;
+	opts->t = 0;
+	opts->big_r = 0;
+	return (opts);
+}
 
-t_opts		*get_opts(int argc, char **argv)
+static t_opts	*get_opts(int argc, char **argv, t_opts *opts)
 {
 	int		i;
 	int		j;
-	t_opts	*opts;
 
 	i = -1;
-	opts = (t_opts *)ft_memalloc(sizeof(t_opts));
 	while (++i < argc)
 	{
 		j = 0;
 		while (argv[i][++j] != '\0' && argv[i][0] == '-')
 		{
-			if (argv[i][j] == 'l')
-				opts->l = 1;
-			else if (argv[i][j] == 'R')
-				opts->R = 1;
-			else if (argv[i][j] == 'a')
-				opts->a = 1;
-			else if (argv[i][j] == 'r')
-				opts->r = 1;
-			else if (argv[i][j] == 't')
-				opts->t = 1;
-			else if (argv[i][j] != 'l' && argv[i][j] != 'R'&& argv[i][j] != 'a' &&
-			argv[i][j] != 'r' && argv[i][j] != 't') 
+			if (!ft_strchr("lRart", argv[i][j]))
 			{
 				ft_putstr_fd("ls: illegal option -- ", 2);
 				write(2, &argv[i][j], 1);
 				ft_putstr_fd("\nusage: ls [-Ralrt] [file ...]\n", 2);
 				exit(1);
 			}
+			opts->l = (opts->l == 1 || argv[i][j] == 'l') ? 1 : 0;
+			opts->a = (opts->a == 1 || argv[i][j] == 'a') ? 1 : 0;
+			opts->r = (opts->r == 1 || argv[i][j] == 'r') ? 1 : 0;
+			opts->t = (opts->t == 1 || argv[i][j] == 't') ? 1 : 0;
+			opts->big_r = (opts->big_r == 1 || argv[i][j] == 'R') ? 1 : 0;
 		}
 	}
 	return (opts);
 }
 
-t_list		*modify_folder_name(t_list *parent, t_list *files)
-{
-	char	*parent_folder;
-
-	if (parent && (!ft_strequ(((t_file *)parent->content)->name, ((t_file *)files->content)->name)))
-	{
-		parent_folder = ft_strjoin(((t_file *)parent->content)->name, ((t_file *)files->content)->name);
-		((t_file *)files->content)->name = ft_strjoin(parent_folder, "/");
-	}
-	else
-		((t_file *)files->content)->name = ft_strjoin(((t_file *)files->content)->name, "/");
-	if (!ft_strequ("./", ((t_file *)files->content)->name) && parent)
-		ft_printf("\n%.*s:\n", ((int)ft_strlen(((t_file *)files->content)->name)) - 1,
-	((t_file *)files->content)->name);
-	return (files);
-}
-
-t_list		*read_dir(DIR *folder, t_list *files, t_opts *opts)
-{
-	struct dirent	*file;
-	t_file			*entry;
-	t_list			*entries;
-	struct stat		stats;
-
-	entries = NULL;
-	entry = (t_file *)ft_memalloc(sizeof(t_file));
-	file = readdir(folder);
-	while (file)
-	{
-		if(opts->a || file->d_name[0] != '.')
-		{
-			entry->name = ft_strdup(file->d_name);
-			lstat(ft_strjoin(((t_file *)files->content)->name, file->d_name), &(entry->stats));
-			ft_list_add_back(&entries, ft_lstnew(entry, sizeof(t_file)));
-		}
-		file = readdir(folder);
-	}
-	free(entry);
-	return (entries);
-}
-
-t_list		*open_dir(t_list *parent, t_list *files, t_opts *opts)
-{
-	DIR				*folder;
-	t_list			*entries;
-	char			*file_name;
-
-	entries = NULL;
-	file_name = ft_strdup(((t_file *)files->content)->name);
-	files = modify_folder_name(parent, files);
-	folder = opendir(((t_file *)files->content)->name);
-	if (!folder)
-	{
-		ft_printf("ft_ls: %s: Permission denied\n", file_name);
-		free(file_name);
-		return (NULL);
-	}
-	entries = read_dir(folder, files, opts);
-	closedir(folder);
-	return (entries);
-}
-
-void		display_entries(t_list *parent, t_list *files, t_opts *opts)
-{
-	t_list			*entries;
-	t_list			*tmp_entries;
-	struct stat		stats;
-	int				width[6];
-	int				spec;
-	
-	if (!(entries = open_dir(parent, files, opts)))
-		return ;
-	if (opts->l)
-		print_total(entries);
-	list_sort(entries, (opts->t) ? cmp_time : cmp_lex, opts->r);
-	tmp_entries = entries;
-	spec = get_width_if_spec(entries, width);
-	while (entries)
-	{
-		display_stats((t_file *)entries->content, ((t_file *)files->content), opts, width, spec);
-		entries = entries->next;
-	}
-	entries = tmp_entries;
-	if (opts->R)
-		while (entries)
-		{
-			if (S_ISDIR(((t_file *)entries->content)->stats.st_mode) &&
-			!ft_strequ(((t_file *)entries->content)->name, ".") &&
-			!ft_strequ(((t_file *)entries->content)->name, ".."))
-				display_entries(files, entries, opts);
-			entries = entries->next;
-		}
-	free(entries);
-}
-
-void	print_list(t_list *list)
-{
-	if (list)
-	{
-		printf("content: %s\n", ((t_file *)list->content)->name);
-		print_list(list->next);
-	}
-}
-
-static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
+static t_list	*make_dir_list(int argc, char **argv, int *input)
 {
 	int			i;
 	t_list		*files;
 	t_file		*tmp;
-	int			input;
 
 	i = 0;
-	input = 0;
 	files = NULL;
 	tmp = (t_file *)ft_memalloc(sizeof(t_file));
 	while (++i < argc)
@@ -180,16 +64,30 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 		if (!file_exists(argv[i]) && !ft_strchr(&argv[i][0], '-'))
 		{
 			ft_printf("ft_ls: %s: No such file or directory\n", argv[i]);
-			input++;
+			*input += 1;
 		}
-		else if (ft_strchr(&argv[i][0], '-') == 0 && !ft_strequ(argv[i], "./ft_ls"))
+		else if (ft_strchr(&argv[i][0], '-') == 0 &&
+		!ft_strequ(argv[i], "./ft_ls"))
 		{
 			tmp->name = ft_strdup(argv[i]);
 			lstat(tmp->name, &(tmp->stats));
 			ft_list_add_back(&files, ft_lstnew(tmp, sizeof(t_file)));
-			input++;
+			*input += 1;
 		}
 	}
+	free(tmp);
+	return (files);
+}
+
+static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
+{
+	t_list	*files;
+	t_file	*tmp;
+	int		input;
+
+	input = 0;
+	tmp = (t_file *)ft_memalloc(sizeof(t_file));
+	files = make_dir_list(argc, argv, &input);
 	if (input == 0 && !ft_list_size(files))
 	{
 		tmp->name = ft_strdup(".");
@@ -205,39 +103,15 @@ static t_list	*scan_dirs(int argc, char **argv, t_opts *opts)
 int				main(int argc, char **argv)
 {
 	t_list	*files;
-	t_list	*prev;
 	t_opts	*opts;
-	int		width[6];
-	int		spec;
-	int 	size;
+	int		size;
 
-	prev = NULL;
-	opts = get_opts(argc, argv);
+	opts = (t_opts *)ft_memalloc(sizeof(t_opts));
+	opts = get_opts(argc, argv, init_opts(opts));
 	files = scan_dirs(argc, argv, opts);
-	spec = get_width_if_spec(files, width);
 	size = ft_list_size(files);
-
-	while (files)
-	{
-		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
-		{
-			if (!ft_strequ(".", ((t_file *)files->content)->name))
-			{
-				if (prev)
-				{
-					ft_printf("\n");
-				}
-				if(size>1)
-					ft_printf("%s:\n", ((t_file *)files->content)->name);
-			}
-			display_entries(NULL, files, opts);
-		}
-		else
-			display_stats((t_file *)files->content, NULL, opts, width, spec);
-		prev = files;
-		files = files->next;
-	}
-	free(files);
+	display_args(files, opts, size);
+	ft_lstdel(&files, ft_lst_free_cont);
 	free(opts);
 	return (0);
 }

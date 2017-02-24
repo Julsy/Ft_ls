@@ -1,8 +1,21 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/02/23 13:27:53 by iiliuk            #+#    #+#              #
+#    Updated: 2017/02/23 17:36:26 by iiliuk           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = ft_ls
 
 CFLAGS = -Wall -Wextra -Werror
 
-FILES = ft_ls.c display_stats.c sort_files.c help_funcs.c
+FILES = ft_ls.c sort_files.c help_funcs.c open_read_dirs.c \
+display_args.c display_stats.c
 
 FT_PRINTF = ft_printf.c helper.c get_flags.c process_char.c process_ptr.c \
 process_digit_id.c process_digit_oux.c process_percent.c process_width.c process_precision.c \
@@ -20,7 +33,8 @@ ft_putendl.c ft_putnbr.c ft_putchar_fd.c ft_putstr_fd.c ft_putendl_fd.c \
 ft_putnbr_fd.c ft_lstnew.c ft_lstdelone.c ft_lstdel.c ft_lstadd.c ft_lstiter.c \
 ft_lstmap.c ft_list_size.c ft_list_add_back.c ft_list_last.c \
 ft_list_push_params.c ft_list_nth.c ft_list_reverse.c ft_realloc.c ft_abs.c \
-ft_itoa_base.c ft_strndup.c ft_itoa_unbase.c ft_lstdelcont.c
+ft_itoa_base.c ft_strndup.c ft_itoa_unbase.c ft_lstdelcont.c ft_lst_free_cont.c \
+ft_print_list.c
 
 FILE_SRCS = $(addprefix srcs/,$(FILES))
 
