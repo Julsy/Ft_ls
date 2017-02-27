@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/03 14:37:11 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/23 18:45:12 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:58:50 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,6 @@ t_list			*open_dir(t_list *parent, t_list *files, t_opts *opts);
 void			do_recursion(t_list	*entries, t_list *files, t_opts *opts);
 
 #endif
-
-// norm display_agrs.c and open_read_dir
-// test again against correction sheet + dev + usr
 
 /*
 **  Program works as follows(not including handling errors):

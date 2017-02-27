@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/01 17:28:25 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/01 17:28:26 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:53:09 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ static void		get_star(char *fmt, t_flags *got_flags, va_list *args)
 	int i;
 	int arg;
 
-	i = 0;
-	while (fmt[i] != '\0')
+	i = -1;
+	while (fmt[++i] != '\0')
 	{
 		if (fmt[i] == '*' && !ft_isdigit(fmt[i + 1]))
 		{
@@ -59,14 +59,14 @@ static void		get_star(char *fmt, t_flags *got_flags, va_list *args)
 			}
 			else
 			{
-				got_flags->left_justify = (got_flags->left_justify || arg < 0) ? 1 : 0;
+				got_flags->left_justify = (got_flags->left_justify ||
+				arg < 0) ? 1 : 0;
 				got_flags->got_width = 1;
 				got_flags->width = ft_abs(arg);
 			}
 		}
 		else if (fmt[i] == '*')
 			arg = va_arg(*args, int);
-		i++;
 	}
 }
 

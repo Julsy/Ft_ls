@@ -6,18 +6,18 @@
 /*   By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/23 17:24:33 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/23 18:44:08 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:58:07 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_ls.h"
 
-static void			display_entries(t_list *parent, t_list *files, t_opts *opts)
+static void		display_entries(t_list *parent, t_list *files, t_opts *opts)
 {
 	t_list	*entries;
 	t_list	*tmp_entries;
 	int		width[7];
-	
+
 	if (!(entries = open_dir(parent, files, opts)))
 		return ;
 	if (opts->l)
@@ -30,8 +30,8 @@ static void			display_entries(t_list *parent, t_list *files, t_opts *opts)
 		if (!opts->l)
 			ft_printf("%s\n", ((t_file *)entries->content)->name);
 		else
-			display_stats((t_file *)entries->content, ((t_file *)files->content),
-			opts, width);
+			display_stats((t_file *)entries->content,
+				((t_file *)files->content), opts, width);
 		entries = entries->next;
 	}
 	entries = tmp_entries;
@@ -39,7 +39,7 @@ static void			display_entries(t_list *parent, t_list *files, t_opts *opts)
 		do_recursion(entries, files, opts);
 }
 
-void			do_recursion(t_list	*entries, t_list *files, t_opts *opts)
+void			do_recursion(t_list *entries, t_list *files, t_opts *opts)
 {
 	while (entries)
 	{
@@ -52,7 +52,19 @@ void			do_recursion(t_list	*entries, t_list *files, t_opts *opts)
 	ft_lstdel(&entries, ft_lst_free_cont);
 }
 
-void			display_args(t_list	*files, t_opts *opts, int size)
+static void		display_args2(t_list *files, t_opts *opts, t_list *prev, int s)
+{
+	if (!ft_strequ(".", ((t_file *)files->content)->name))
+	{
+		if (prev)
+			ft_printf("\n");
+		if (s > 1)
+			ft_printf("%s:\n", ((t_file *)files->content)->name);
+	}
+	display_entries(NULL, files, opts);
+}
+
+void			display_args(t_list *files, t_opts *opts, int size)
 {
 	t_list	*prev;
 	int		width[7];
@@ -62,16 +74,7 @@ void			display_args(t_list	*files, t_opts *opts, int size)
 	while (files)
 	{
 		if (S_ISDIR(((t_file *)files->content)->stats.st_mode))
-		{
-			if (!ft_strequ(".", ((t_file *)files->content)->name))
-			{
-				if (prev)
-					ft_printf("\n");
-				if (size > 1)
-					ft_printf("%s:\n", ((t_file *)files->content)->name);
-			}
-			display_entries(NULL, files, opts);
-		}
+			display_args2(files, opts, prev, size);
 		else
 		{
 			if (!opts->l)

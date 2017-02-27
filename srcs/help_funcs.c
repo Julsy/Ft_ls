@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/23 17:15:58 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/23 18:42:11 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:53:58 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int		file_exists(char *filename)
 {
 	struct stat		buffer;
 
-	return (stat(filename, &buffer) == 0);
+	return (lstat(filename, &buffer) == 0);
 }
 
 void	print_total(t_list *folder)

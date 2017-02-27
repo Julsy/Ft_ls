@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/23 17:22:33 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/23 17:22:35 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:56:56 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static t_list	*read_dir(DIR *folder, t_list *files, t_opts *opts)
 	file = readdir(folder);
 	while (file)
 	{
-		if(opts->a || file->d_name[0] != '.')
+		if (opts->a || file->d_name[0] != '.')
 		{
 			entry->name = ft_strdup(file->d_name);
 			lstat(ft_strjoin(((t_file *)files->content)->name,

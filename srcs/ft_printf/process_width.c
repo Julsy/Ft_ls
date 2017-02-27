@@ -6,7 +6,7 @@
 /*   By: iiliuk <iiliuk@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/01 17:29:02 by iiliuk            #+#    #+#             */
-/*   Updated: 2017/02/01 17:29:02 by iiliuk           ###   ########.fr       */
+/*   Updated: 2017/02/27 14:53:17 by iiliuk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ void		process_width_s(char **str, t_flags *got_flags)
 	if (got_flags->left_justify == 1)
 	{
 		ft_strcpy(tmp, *str);
-		ft_memset(tmp + ft_strlen(*str), ' ', got_flags->width - ft_strlen(*str));
+		ft_memset(tmp + ft_strlen(*str), ' ',
+		got_flags->width - ft_strlen(*str));
 	}
 	else
 		tmp = right_justify(str, got_flags, tmp);
